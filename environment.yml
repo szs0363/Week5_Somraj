@@ -1,8 +1,6 @@
 # environment.yml
 # Create with:  conda env create -f environment.yml
-# Activate with: conda activate week5-busco
-#
-# Versions are pinned deliberately. If you must update one, re-record the
+# Activate with: conda activate week5-busco 
 # BUSCO lineage dataset version too (see README "Reproducibility notes").
 name: week5-busco
 channels:
@@ -13,3 +11,4 @@ dependencies:
   - busco=5.7.1
   - seqkit=2.8.2
   - ncbi-datasets-cli=16.30.0
+  - numpy<2
