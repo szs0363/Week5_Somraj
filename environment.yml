@@ -8,7 +8,6 @@ channels:
   - conda-forge
 dependencies:
   - python=3.11
-  - busco=5.7.1
+  - busco=5.8.2
   - seqkit=2.8.2
   - ncbi-datasets-cli=16.30.0
-  - numpy<2
