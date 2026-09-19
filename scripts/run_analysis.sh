@@ -12,17 +12,45 @@
 #   4. Summarizes both into one human-readable table: outputs/results_table.tsv
 #   5. Writes CHECKSUMS.txt for every output + the input genome file
 #
-# Requirements: conda env built from environment.yml in this repo.
+# Requirements: conda (or mamba) installed, with the env built from
+# environment.yml in this repo:
 #   conda env create -f environment.yml
-#   conda activate week5-busco
 #
 # Usage:
 #   bash scripts/run_analysis.sh
-#
-# Everything below is pinned/explicit on purpose — a classmate's AI coding
-# agent should be able to run this with zero guessing.
+#   Works interactively or submitted as a batch job — conda activation
+#   below is self-contained and machine-independent.
 
 set -euo pipefail  # fail loudly on any error, unset var, or pipe failure
+
+# --- Activate the environment inside the job itself ---
+# Batch job schedulers (qsub/sbatch) start a fresh, non-interactive shell
+# that does NOT inherit an already-activated conda env, so we locate and
+# activate conda ourselves here. This also makes the script work the same
+# way whether run interactively, as a batch job, or on a different machine
+# entirely (e.g. a classmate reproducing this analysis).
+if ! command -v conda >/dev/null 2>&1 || [ -z "${CONDA_DEFAULT_ENV:-}" ] || [ "${CONDA_DEFAULT_ENV:-}" != "week5-busco" ]; then
+  CONDA_BASE=""
+  for candidate in "$HOME/miniconda3" "$HOME/anaconda3" "$HOME/miniforge3" \
+                   "/opt/conda" "/opt/miniconda3" "/opt/anaconda3" \
+                   "/usr/local/anaconda3" "/usr/local/miniconda3"; do
+    if [ -f "${candidate}/etc/profile.d/conda.sh" ]; then
+      CONDA_BASE="${candidate}"
+      break
+    fi
+  done
+  if [ -z "${CONDA_BASE}" ] && command -v conda >/dev/null 2>&1; then
+    CONDA_BASE="$(conda info --base 2>/dev/null || true)"
+  fi
+  if [ -z "${CONDA_BASE}" ] || [ ! -f "${CONDA_BASE}/etc/profile.d/conda.sh" ]; then
+    echo "ERROR: could not locate a conda installation on this machine." >&2
+    echo "Install Miniconda (https://docs.conda.io/en/latest/miniconda.html)" >&2
+    echo "or edit the candidate list in run_analysis.sh to add your install path." >&2
+    exit 1
+  fi
+  source "${CONDA_BASE}/etc/profile.d/conda.sh"
+  conda activate week5-busco
+fi
 
 # ---- Config (pin everything that could silently drift) --------------------
 ACCESSION="GCA_014607475.1"       # complete B. bassiana genome, NCBI Datasets
