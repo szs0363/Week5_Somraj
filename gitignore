@@ -1,0 +1,5 @@
+# Raw data is fetched by the script, not committed (per assignment rules)
+data/
+outputs/busco_out/
+*.zip
+*.fna
